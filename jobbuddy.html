@@ -3,13 +3,18 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Job Buddy – Fast Resume, Analyzer & Tracker</title>
-  <meta name="description" content="Job Buddy helps you build a resume, generate cover letters, analyze job descriptions, and track applications—fast."/>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Ctext y='48' font-size='48'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E"/>
+  <title>Job Buddy – Build • Analyze • Track</title>
+  <meta name="description" content="Build a resume, generate cover letters, analyze job descriptions, and track applications—fast and free."/>
+  <meta name="theme-color" content="#101828"/>
 
-  <!-- Google Font -->
+  <!-- Favicon (inline SVG) -->
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='14' rx='3'/%3E%3Cpath d='M7 10h10M7 14h7'/%3E%3C/svg%3E">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -69,18 +74,14 @@
     .brand .logo {
       width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
       background: linear-gradient(135deg, var(--brand), var(--ring));
+      color: white;
       box-shadow: 0 8px 20px color-mix(in oklab, var(--ring) 30%, transparent);
+      font-size: 18px;
     }
-    .brand .logo span { font-size: 18px; }
     .spacer { flex: 1; }
-    .nav-btn {
-      border: 1px solid var(--border); background: var(--panel); color: var(--text);
-      padding: 8px 12px; border-radius: 12px; cursor: pointer; font-weight: 600;
-    }
-    .nav-btn.active { outline: 2px solid var(--ring); }
     .toggle {
       padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--panel);
-      cursor: pointer;
+      cursor: pointer; color: var(--text);
     }
 
     /* Layout */
@@ -105,7 +106,7 @@
     }
     textarea { min-height: 100px; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     @media (max-width: 700px){ .row, .row-3 { grid-template-columns: 1fr; } }
 
     .btn {
@@ -130,7 +131,6 @@
     .resume-preview ul { margin: 6px 0 10px 18px; }
     .resume-preview .topline { display: flex; gap: 10px; flex-wrap: wrap; color: #334155; font-size: 13px; }
 
-    /* Printing only the resume preview */
     @media print {
       body * { visibility: hidden !important; }
       #printableResume, #printableResume * { visibility: visible !important; }
@@ -143,77 +143,81 @@
     th { text-align: left; color: var(--muted); font-weight: 700; }
     tr:hover td { background: color-mix(in oklab, var(--ring) 10%, transparent); }
 
+    /* Tiny icon buttons for lists */
+    .icon-btn { border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 8px; padding: 4px 8px; cursor: pointer; margin-left: 4px; }
+
     /* Toast */
     .toast {
       position: fixed; bottom: 18px; right: 18px; background: var(--panel); border: 1px solid var(--border); padding: 10px 12px; border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,.2); opacity: 0; transform: translateY(10px); transition: all .25s ease;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
+    footer { text-align:center; font-size:12px; color:var(--muted); padding: 32px 0; }
   </style>
 </head>
 <body>
   <header>
-    <div class="nav">
-      <div class="brand">
-        <div class="logo"><span>JB</span></div>
+    <div class="nav" role="navigation" aria-label="Main">
+      <div class="brand" aria-label="Job Buddy">
+        <div class="logo">JB</div>
         <div>
           <div style="font-size: 15px; opacity: .9;">JOB BUDDY</div>
           <div class="muted" style="font-size: 12px;">Build • Analyze • Track</div>
         </div>
       </div>
       <div class="spacer"></div>
-      <button id="themeToggle" class="toggle" title="Toggle theme">🌙 Dark</button>
+      <button id="themeToggle" class="toggle" title="Toggle theme" aria-pressed="false">🌙 Dark</button>
     </div>
   </header>
 
   <main>
     <div class="tabs" role="tablist" aria-label="Primary">
-      <button class="tab active" data-tab="resume">Resume Builder</button>
-      <button class="tab" data-tab="cover">Cover Letter</button>
-      <button class="tab" data-tab="analyzer">Job Analyzer</button>
-      <button class="tab" data-tab="tracker">Application Tracker</button>
-      <button class="tab" data-tab="settings">Settings</button>
+      <button class="tab active" data-tab="resume" aria-selected="true">Resume Builder</button>
+      <button class="tab" data-tab="cover" aria-selected="false">Cover Letter</button>
+      <button class="tab" data-tab="analyzer" aria-selected="false">Job Analyzer</button>
+      <button class="tab" data-tab="tracker" aria-selected="false">Application Tracker</button>
+      <button class="tab" data-tab="settings" aria-selected="false">Settings</button>
     </div>
 
     <!-- Resume Builder -->
     <section id="resume" class="grid" role="tabpanel" aria-labelledby="tab-resume">
       <div class="card">
         <h3>Resume Info</h3>
-        <p class="muted">Fill the fields below. Your progress auto‑saves.</p>
+        <p class="muted">Fill the fields. Your progress auto‑saves.</p>
         <div class="row">
           <div>
-            <label>Full Name</label>
+            <label for="r_name">Full Name</label>
             <input id="r_name" type="text" placeholder="e.g., Marcella Mae P. Sagad"/>
           </div>
           <div>
-            <label>Headline</label>
+            <label for="r_title">Headline</label>
             <input id="r_title" type="text" placeholder="e.g., Engineering Master's Student • Data / ML"/>
           </div>
         </div>
         <div class="row">
-          <div><label>Email</label><input id="r_email" type="text" placeholder="you@email.com"/></div>
-          <div><label>Phone</label><input id="r_phone" type="text" placeholder="+1 (555) 123‑4567"/></div>
+          <div><label for="r_email">Email</label><input id="r_email" type="text" placeholder="you@email.com"/></div>
+          <div><label for="r_phone">Phone</label><input id="r_phone" type="text" placeholder="+1 (555) 123‑4567"/></div>
         </div>
         <div class="row">
-          <div><label>Location</label><input id="r_location" type="text" placeholder="City, State"/></div>
-          <div><label>Website / LinkedIn</label><input id="r_site" type="url" placeholder="https://linkedin.com/in/you"/></div>
+          <div><label for="r_location">Location</label><input id="r_location" type="text" placeholder="City, State"/></div>
+          <div><label for="r_site">Website / LinkedIn</label><input id="r_site" type="url" placeholder="https://linkedin.com/in/you"/></div>
         </div>
-        <label>Summary</label>
+        <label for="r_summary">Summary</label>
         <textarea id="r_summary" placeholder="2–3 line summary of your strengths and impact."></textarea>
 
-        <label>Skills (comma‑separated)</label>
+        <label for="r_skills">Skills (comma‑separated)</label>
         <input id="r_skills" type="text" placeholder="Python, MATLAB, SolidWorks, Project Management, Leadership"/>
 
         <h4>Experience</h4>
         <div class="row">
-          <div><label>Role</label><input id="r_exp_role" type="text" placeholder="e.g., Graduate Research Assistant"/></div>
-          <div><label>Company</label><input id="r_exp_company" type="text" placeholder="University / Company"/></div>
+          <div><label for="r_exp_role">Role</label><input id="r_exp_role" type="text" placeholder="e.g., Graduate Research Assistant"/></div>
+          <div><label for="r_exp_company">Company</label><input id="r_exp_company" type="text" placeholder="University / Company"/></div>
         </div>
         <div class="row">
-          <div><label>Dates</label><input id="r_exp_dates" type="text" placeholder="Aug 2024 – Present"/></div>
-          <div><label>Location</label><input id="r_exp_loc" type="text" placeholder="Atlanta, GA"/></div>
+          <div><label for="r_exp_dates">Dates</label><input id="r_exp_dates" type="text" placeholder="Aug 2024 – Present"/></div>
+          <div><label for="r_exp_loc">Location</label><input id="r_exp_loc" type="text" placeholder="Atlanta, GA"/></div>
         </div>
-        <label>Bullets (one per line)</label>
+        <label for="r_exp_bullets">Bullets (one per line)</label>
         <textarea id="r_exp_bullets" placeholder="Use action verbs and quantify results.&#10;• Built __ resulting in __% improvement&#10;• Automated __ saving __ hours/week"></textarea>
 
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
@@ -221,23 +225,26 @@
           <button class="btn secondary" id="btnClearExp">Clear Experiences</button>
           <button class="btn" id="btnPrint">Download PDF (Print)</button>
         </div>
-        <p class="muted" style="margin-top:8px;">Tip: “Download PDF” opens the browser print dialog with a clean resume layout.</p>
+        <div id="expList" class="muted" style="margin-top:10px;"></div>
 
         <h4>Education</h4>
         <div class="row">
-          <div><label>Program</label><input id="r_ed_program" type="text" placeholder="M.S. in ____ (GPA x.xx)"/></div>
-          <div><label>School</label><input id="r_ed_school" type="text" placeholder="Your University"/></div>
+          <div><label for="r_ed_program">Program</label><input id="r_ed_program" type="text" placeholder="M.S. in ____ (GPA x.xx)"/></div>
+          <div><label for="r_ed_school">School</label><input id="r_ed_school" type="text" placeholder="Your University"/></div>
         </div>
         <div class="row">
-          <div><label>Dates</label><input id="r_ed_dates" type="text" placeholder="2024 – 2026"/></div>
-          <div><label>Honors (optional)</label><input id="r_ed_honors" type="text" placeholder="Dean's List, Scholarships"/></div>
+          <div><label for="r_ed_dates">Dates</label><input id="r_ed_dates" type="text" placeholder="2024 – 2026"/></div>
+          <div><label for="r_ed_honors">Honors (optional)</label><input id="r_ed_honors" type="text" placeholder="Dean's List, Scholarships"/></div>
         </div>
-        <button class="btn secondary" id="btnAddEdu">Add Education</button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn secondary" id="btnAddEdu">Add Education</button>
+        </div>
+        <div id="eduList" class="muted" style="margin-top:10px;"></div>
       </div>
 
       <div class="card">
         <h3>Live Resume Preview</h3>
-        <div id="printableResume" class="resume-preview">
+        <div id="printableResume" class="resume-preview" aria-label="Resume Preview">
           <div id="rp_header">
             <h1 id="rp_name">Your Name</h1>
             <div class="topline" id="rp_topline"></div>
@@ -259,16 +266,16 @@
       <div class="card">
         <h3>Cover Letter Inputs</h3>
         <div class="row">
-          <div><label>Company</label><input id="c_company" type="text" placeholder="Company Inc."/></div>
-          <div><label>Role</label><input id="c_role" type="text" placeholder="Mechanical Engineer"/></div>
+          <div><label for="c_company">Company</label><input id="c_company" type="text" placeholder="Company Inc."/></div>
+          <div><label for="c_role">Role</label><input id="c_role" type="text" placeholder="Mechanical Engineer"/></div>
         </div>
         <div class="row">
-          <div><label>Hiring Manager (optional)</label><input id="c_manager" type="text" placeholder="Hiring Manager / Team"/></div>
-          <div><label>Source (optional)</label><input id="c_source" type="text" placeholder="Where you found the job"/></div>
+          <div><label for="c_manager">Hiring Manager (optional)</label><input id="c_manager" type="text" placeholder="Hiring Manager / Team"/></div>
+          <div><label for="c_source">Source (optional)</label><input id="c_source" type="text" placeholder="Where you found the job"/></div>
         </div>
-        <label>Job Highlights (paste 3–5 bullet points)</label>
+        <label for="c_highlights">Job Highlights (paste 3–5 bullet points)</label>
         <textarea id="c_highlights" placeholder="• Experience with CAD / FEA&#10;• Strong cross‑functional collaboration&#10;• Manufacturing process knowledge"></textarea>
-        <label>Your Strongest Achievements (1–3 lines)</label>
+        <label for="c_you">Your Strongest Achievements (1–3 lines)</label>
         <textarea id="c_you" placeholder="• Built __ resulting in __% improvement&#10;• Led __ across __ teams"></textarea>
         <button class="btn" id="btnGenCover">Generate Cover Letter</button>
       </div>
@@ -279,7 +286,7 @@
         <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn secondary" id="btnCopyCover">Copy to Clipboard</button>
         </div>
-        <p class="muted">You can also paste this into Word/Docs for formatting or export as PDF there.</p>
+        <p class="muted">You can paste this into Word/Docs for formatting or export as PDF there.</p>
       </div>
     </section>
 
@@ -317,13 +324,13 @@
       <div class="card">
         <h3>Add Application</h3>
         <div class="row-3">
-          <div><label>Company</label><input id="t_company" type="text"/></div>
-          <div><label>Role</label><input id="t_role" type="text"/></div>
-          <div><label>Link</label><input id="t_link" type="url" placeholder="https://"/></div>
+          <div><label for="t_company">Company</label><input id="t_company" type="text"/></div>
+          <div><label for="t_role">Role</label><input id="t_role" type="text"/></div>
+          <div><label for="t_link">Link</label><input id="t_link" type="url" placeholder="https://"/></div>
         </div>
         <div class="row-3" style="margin-top:10px;">
           <div>
-            <label>Status</label>
+            <label for="t_status">Status</label>
             <select id="t_status">
               <option>Saved</option>
               <option>Applied</option>
@@ -332,8 +339,8 @@
               <option>Rejected</option>
             </select>
           </div>
-          <div><label>Applied On</label><input id="t_date" type="date"/></div>
-          <div><label>Notes</label><input id="t_notes" type="text" placeholder="Short note"/></div>
+          <div><label for="t_date">Applied On</label><input id="t_date" type="date"/></div>
+          <div><label for="t_notes">Notes</label><input id="t_notes" type="text" placeholder="Short note"/></div>
         </div>
         <div style="margin-top:10px;">
           <button class="btn" id="btnAddJob">Add to Tracker</button>
@@ -347,7 +354,7 @@
       <div class="card">
         <h3>Your Applications</h3>
         <div style="overflow:auto;">
-          <table>
+          <table aria-label="Application Tracker Table">
             <thead>
               <tr>
                 <th data-sort="company" style="cursor:pointer;">Company ⬍</th>
@@ -369,7 +376,7 @@
     <section id="settings" class="grid" style="display:none;">
       <div class="card">
         <h3>Preferences</h3>
-        <p class="muted">Theme, autosave, and backup happen locally in your browser.</p>
+        <p class="muted">Theme, autosave, and backups are local to your browser.</p>
         <div>
           <div class="tag">Autosave: On</div>
           <div class="tag">Local & Private</div>
@@ -379,13 +386,15 @@
       <div class="card">
         <h3>Tips</h3>
         <ul>
-          <li>Use strong action verbs and quantify your impact (%, time saved, $).</li>
+          <li>Use action verbs and quantify your impact (%, time saved, $).</li>
           <li>Tailor your Skills to match the analyzer keywords.</li>
-          <li>Use the Tracker “Notes” to prep quick talking points before interviews.</li>
+          <li>Use the Tracker notes to prep quick talking points before interviews.</li>
         </ul>
       </div>
     </section>
   </main>
+
+  <footer>Job Buddy • v2 • You got this 💪</footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
@@ -406,14 +415,18 @@
       set: (k, v) => localStorage.setItem(k, JSON.stringify(v)),
       remove: (k) => localStorage.removeItem(k),
     };
+    const escapeHTML = (str='') =>
+      str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const escapeAttr = (str='') => escapeHTML(str).replace(/"/g, '&quot;');
 
     /***************
      * Theme
      ***************/
     const applyTheme = (t) => {
       const root = document.documentElement;
-      if (t === 'light') { root.classList.add('light'); $('#themeToggle').textContent = '🌞 Light'; }
-      else { root.classList.remove('light'); $('#themeToggle').textContent = '🌙 Dark'; }
+      const btn = $('#themeToggle');
+      if (t === 'light') { root.classList.add('light'); btn.textContent = '🌞 Light'; btn.setAttribute('aria-pressed','true'); }
+      else { root.classList.remove('light'); btn.textContent = '🌙 Dark'; btn.setAttribute('aria-pressed','false'); }
     };
     const initTheme = () => {
       let t = storage.get('jb_theme');
@@ -439,6 +452,7 @@
         btn.classList.add('active');
         const id = btn.dataset.tab;
         $$('main > section').forEach(s => s.style.display = (s.id === id) ? (s.classList.contains('grid') ? 'grid' : 'block') : 'none');
+        $$('.tab').forEach(el => el.setAttribute('aria-selected', el === btn ? 'true' : 'false'));
       });
     });
 
@@ -460,21 +474,50 @@
       // preview
       rp_name: $('#rp_name'), rp_topline: $('#rp_topline'), rp_summary: $('#rp_summary'),
       rp_skills: $('#rp_skills'), rp_exps: $('#rp_experiences'), rp_edu: $('#rp_education'),
+      listExp: $('#expList'), listEdu: $('#eduList')
     };
 
-    // Bind inputs to state
+    const saveResume = () => storage.set('jb_resume', resumeState);
+    const bulletLines = t => (t || '').split('\n').map(x => x.trim().replace(/^[\-•]\s?/, '')).filter(Boolean);
+
+    // bind text inputs
     const bindText = (el, key) => {
       el.value = resumeState[key] || '';
       el.addEventListener('input', () => { resumeState[key] = el.value; saveResume(); renderResume(); });
     };
-
     [ ['name','r_name'], ['title','r_title'], ['email','r_email'], ['phone','r_phone'],
       ['location','r_location'], ['site','r_site'], ['summary','r_summary'], ['skills','r_skills']
     ].forEach(([k,id]) => bindText(document.getElementById(id), k));
 
-    const saveResume = () => storage.set('jb_resume', resumeState);
+    const renderExperienceList = () => {
+      const arr = resumeState.experiences || [];
+      if (!arr.length) { R.listExp.innerHTML = '<span class="muted">No experiences added yet.</span>'; return; }
+      R.listExp.innerHTML = arr.map((e,i)=>`
+        <div>
+          <strong>${escapeHTML(e.role || '')}</strong> • ${escapeHTML(e.company || '')}
+          <button class="icon-btn exp-up" data-i="${i}" title="Move up">▲</button>
+          <button class="icon-btn exp-down" data-i="${i}" title="Move down">▼</button>
+          <button class="icon-btn exp-del" data-i="${i}" title="Delete">✖</button>
+        </div>`).join('');
+      $$('.exp-up').forEach(b=>b.addEventListener('click', ev => { const i=+ev.target.dataset.i; if(i>0){ [resumeState.experiences[i-1], resumeState.experiences[i]]=[resumeState.experiences[i], resumeState.experiences[i-1]]; saveResume(); renderResume(); }}));
+      $$('.exp-down').forEach(b=>b.addEventListener('click', ev => { const i=+ev.target.dataset.i; if(i<resumeState.experiences.length-1){ [resumeState.experiences[i+1], resumeState.experiences[i]]=[resumeState.experiences[i], resumeState.experiences[i+1]]; saveResume(); renderResume(); }}));
+      $$('.exp-del').forEach(b=>b.addEventListener('click', ev => { const i=+ev.target.dataset.i; resumeState.experiences.splice(i,1); saveResume(); renderResume(); }));
+    };
 
-    const bulletLines = t => (t || '').split('\n').map(x => x.trim().replace(/^[-•]\s?/, '')).filter(Boolean);
+    const renderEducationList = () => {
+      const arr = resumeState.education || [];
+      if (!arr.length) { R.listEdu.innerHTML = '<span class="muted">No education entries yet.</span>'; return; }
+      R.listEdu.innerHTML = arr.map((e,i)=>`
+        <div>
+          <strong>${escapeHTML(e.program || '')}</strong> • ${escapeHTML(e.school || '')}
+          <button class="icon-btn edu-up" data-i="${i}" title="Move up">▲</button>
+          <button class="icon-btn edu-down" data-i="${i}" title="Move down">▼</button>
+          <button class="icon-btn edu-del" data-i="${i}" title="Delete">✖</button>
+        </div>`).join('');
+      $$('.edu-up').forEach(b=>b.addEventListener('click', ev => { const i=+ev.target.dataset.i; if(i>0){ [resumeState.education[i-1], resumeState.education[i]]=[resumeState.education[i], resumeState.education[i-1]]; saveResume(); renderResume(); }}));
+      $$('.edu-down').forEach(b=>b.addEventListener('click', ev => { const i=+ev.target.dataset.i; if(i<resumeState.education.length-1){ [resumeState.education[i+1], resumeState.education[i]]=[resumeState.education[i], resumeState.education[i+1]]; saveResume(); renderResume(); }}));
+      $$('.edu-del').forEach(b=>b.addEventListener('click', ev => { const i=+ev.target.dataset.i; resumeState.education.splice(i,1); saveResume(); renderResume(); }));
+    };
 
     const renderResume = () => {
       R.rp_name.textContent = resumeState.name || 'Your Name';
@@ -494,7 +537,7 @@
         <div style="margin-bottom:8px;">
           <div style="font-weight:700">${escapeHTML(exp.role)} • ${escapeHTML(exp.company)}</div>
           <div class="muted" style="color:#475569">${escapeHTML(exp.dates)} • ${escapeHTML(exp.location)}</div>
-          <ul>${exp.bullets.map(b => `<li>${escapeHTML(b)}</li>`).join('')}</ul>
+          <ul>${(exp.bullets||[]).map(b => `<li>${escapeHTML(b)}</li>`).join('')}</ul>
         </div>
       `).join('');
       // education
@@ -504,22 +547,13 @@
           <div class="muted" style="color:#475569">${escapeHTML(ed.dates)}${ed.honors? ' • ' + escapeHTML(ed.honors):''}</div>
         </div>
       `).join('');
+      renderExperienceList();
+      renderEducationList();
     };
-
-    function escapeHTML(str='') {
-      return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-    }
 
     // preload form from state
     (function preloadResumeForm(){
-      R.name.value = resumeState.name || '';
-      R.title.value = resumeState.title || '';
-      R.email.value = resumeState.email || '';
-      R.phone.value = resumeState.phone || '';
-      R.location.value = resumeState.location || '';
-      R.site.value = resumeState.site || '';
-      R.summary.value = resumeState.summary || '';
-      R.skills.value = resumeState.skills || '';
+      ['name','title','email','phone','location','site','summary','skills'].forEach(k=>{ const id='r_'+k; if(document.getElementById(id)) document.getElementById(id).value = resumeState[k] || ''; });
       renderResume();
     })();
 
@@ -578,3 +612,195 @@
       const source = $('#c_source').value.trim();
       const highlights = bulletLines($('#c_highlights').value);
       const yourWins = bulletLines($('#c_you').value);
+      const skillsList = (resumeState.skills || '').split(',').map(s => s.trim()).filter(Boolean);
+
+      const today = new Date().toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
+      const greet = manager ? `Dear ${manager},` : `Dear Hiring Team,`;
+
+      const para1 = `I'm excited to apply for the ${role} role at ${company}${source ? `, which I discovered via ${source}`:''}. With a background in ${resumeState.title || 'engineering'} and hands‑on experience delivering measurable outcomes, I’m confident I can contribute quickly.`;
+      const para2 = yourWins.length ? `Highlights of my impact include:\n${yourWins.map(x => '• ' + x).join('\n')}` : '';
+      const para3 = highlights.length ? `Your description emphasizes:\n${highlights.map(x => '• ' + x).join('\n')}\nI align well through experience with ${skillsList.slice(0,6).join(', ')}.` : '';
+      const para4 = `I’d welcome the chance to discuss how I can support ${company}’s goals in the ${role} position. Thank you for your time and consideration.`;
+      const sign = `${name}\n${email}${phone ? ' • ' + phone : ''}${site ? ' • ' + site : ''}`;
+
+      const letter = `${today}\n\n${greet}\n\n${para1}\n\n${para2}\n\n${para3}\n\n${para4}\n\nSincerely,\n${sign}`;
+      $('#coverPreview').value = letter;
+      toast('Cover letter generated');
+    });
+    $('#btnCopyCover').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText($('#coverPreview').value || '');
+        toast('Copied!');
+      } catch {
+        toast('Copy failed—select and copy manually.');
+      }
+    });
+
+    /***************
+     * Analyzer
+     ***************/
+    // stopwords (lightweight)
+    const STOP = new Set(("a,an,and,are,as,at,be,by,for,from,has,he,in,is,it,its,of,on,that,the,to,was,were,will,with,or,if,not,into,over,under,this,those,these,can,able,you,your,our,they,them,us,we,about,across,per,using,via,within,through,including,plus,while,both,either,neither,should,may,must").split(','));
+    function keywords(text) {
+      const words = (text || '').toLowerCase()
+        .replace(/[^a-z0-9\+\#\.\- ]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w && !STOP.has(w) && w.length > 2);
+      const freq = {};
+      for (const w of words) freq[w] = (freq[w]||0)+1;
+      const pairs = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+      return pairs.slice(0, 25).map(([w]) => w);
+    }
+    function analyzeJD(jd, userSkillsCSV) {
+      const kws = keywords(jd);
+      const skills = (userSkillsCSV || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+      const matched = [];
+      const gaps = [];
+      for (const k of kws) {
+        if (skills.some(s => s.includes(k) || k.includes(s))) matched.push(k);
+        else gaps.push(k);
+      }
+      const uniqueSet = new Set(kws);
+      const score = uniqueSet.size ? Math.round((matched.length/uniqueSet.size)*100) : 0;
+      return {kws, matched, gaps, score};
+    }
+    function phraseForKeyword(k){
+      const map = {
+        'python': 'Developed data pipelines and prototypes in Python, improving iteration speed.',
+        'matlab': 'Modeled and simulated systems in MATLAB to guide design decisions.',
+        'solidworks': 'Designed and iterated 3D components in SolidWorks with DFM in mind.',
+        'cad': 'Produced CAD assemblies and drawings aligned with GD&T standards.',
+        'fea': 'Performed finite element analyses to validate designs under load.',
+        'project': 'Coordinated cross‑functional timelines, reducing blockers and slippage.',
+        'manufacturing': 'Collaborated with manufacturing to transition designs to production.',
+        'leadership': 'Led a small team, aligning scope, milestones, and risk mitigation.'
+      };
+      for (const key of Object.keys(map)) if (k.includes(key)) return '• ' + map[key];
+      return '• Demonstrated proficiency with ' + k + ' to deliver measurable outcomes.';
+    }
+
+    const runAnalyze = () => {
+      const jd = $('#a_jd').value;
+      const res = analyzeJD(jd, resumeState.skills);
+      $('#a_score').textContent = `Match Score: ${res.score}%`;
+      $('#a_keywords').innerHTML = res.kws.map(k => `<span class="tag">${escapeHTML(k)}</span>`).join(' ');
+      $('#a_gaps').innerHTML = res.gaps.length ? res.gaps.map(k => `<span class="tag">${escapeHTML(k)}</span>`).join(' ') : '<span class="muted">No obvious gaps—nice!</span>';
+      $('#a_phrases').innerHTML = res.kws.slice(0,10).map(phraseForKeyword).map(p => `<div>${escapeHTML(p)}</div>`).join('');
+      toast('Analysis complete');
+    };
+
+    $('#btnAnalyze').addEventListener('click', runAnalyze);
+    $('#btnFillFromResume').addEventListener('click', runAnalyze);
+
+    /***************
+     * Tracker
+     ***************/
+    let tracker = storage.get('jb_tracker', []);
+    let sortKey = 'company', sortAsc = true;
+
+    function renderTable() {
+      const rows = $('#t_rows');
+      const data = [...tracker].sort((a,b) => {
+        const av = (a[sortKey]||'').toString().toLowerCase();
+        const bv = (b[sortKey]||'').toString().toLowerCase();
+        return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+      });
+      rows.innerHTML = data.map((job, idx) => `
+        <tr>
+          <td>${escapeHTML(job.company || '')}</td>
+          <td>${escapeHTML(job.role || '')}</td>
+          <td>
+            <select data-idx="${idx}" class="statusSel">
+              ${['Saved','Applied','Interview','Offer','Rejected'].map(s => `<option ${s===job.status?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </td>
+          <td>${escapeHTML(job.date || '')}</td>
+          <td>${escapeHTML(job.notes || '')}</td>
+          <td>${job.link ? `<a href="${escapeAttr(job.link)}" target="_blank" rel="noopener noreferrer">Open</a>`:''}</td>
+          <td><button data-idx="${idx}" class="icon-btn delJob">Delete</button></td>
+        </tr>
+      `).join('');
+      $$('.statusSel').forEach(sel => sel.addEventListener('change', (e) => {
+        const i = +e.target.dataset.idx; tracker[i].status = e.target.value; saveTracker(); toast('Status updated');
+      }));
+      $$('.delJob').forEach(btn => btn.addEventListener('click', (e) => {
+        const i = +e.target.dataset.idx;
+        if (confirm('Delete this entry?')) { tracker.splice(i,1); saveTracker(); renderTable(); }
+      }));
+    }
+    function saveTracker() { storage.set('jb_tracker', tracker); }
+
+    $('#btnAddJob').addEventListener('click', () => {
+      const job = {
+        company: $('#t_company').value.trim(),
+        role: $('#t_role').value.trim(),
+        link: $('#t_link').value.trim(),
+        status: $('#t_status').value,
+        date: $('#t_date').value,
+        notes: $('#t_notes').value.trim()
+      };
+      if (!job.company || !job.role) { toast('Company & Role required'); return; }
+      tracker.push(job); saveTracker(); renderTable();
+      ['t_company','t_role','t_link','t_notes'].forEach(id => document.getElementById(id).value = '');
+      toast('Added to tracker');
+    });
+
+    $$('th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.getAttribute('data-sort');
+        if (sortKey === key) sortAsc = !sortAsc; else { sortKey = key; sortAsc = true; }
+        renderTable();
+      });
+    });
+
+    $('#btnExport').addEventListener('click', () => {
+      const data = {
+        resume: storage.get('jb_resume', {}),
+        tracker: storage.get('jb_tracker', []),
+        v: 2
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'jobbuddy_backup.json'; a.click();
+      URL.revokeObjectURL(url);
+      toast('Backup exported');
+    });
+
+    $('#importFile').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      try {
+        const data = JSON.parse(text);
+        if (data.resume) storage.set('jb_resume', data.resume);
+        if (data.tracker) storage.set('jb_tracker', data.tracker);
+        location.reload();
+      } catch {
+        alert('Invalid backup file.');
+      }
+    });
+
+    $('#btnClearAll').addEventListener('click', () => {
+      if (!confirm('This will remove resume + tracker data from this browser. Continue?')) return;
+      storage.remove('jb_resume'); storage.remove('jb_tracker');
+      location.reload();
+    });
+
+    // Initial render
+    renderTable();
+
+    /***************
+     * Autosave - Resume fields
+     ***************/
+    ['r_name','r_title','r_email','r_phone','r_location','r_site','r_summary','r_skills',
+     'r_exp_role','r_exp_company','r_exp_dates','r_exp_loc','r_exp_bullets',
+     'r_ed_program','r_ed_school','r_ed_dates','r_ed_honors'
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input', () => { saveResume(); });
+    });
+  </script>
+</body>
+</html>
+``
