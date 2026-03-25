@@ -371,7 +371,32 @@
         </div>
       </div>
     </section>
+<!-- ⭐ JOB FINDER SECTION (PASTE ABOVE SETTINGS) -->
+<section id="jobfinder" style="display:none;">
+  <div class="card">
+    <h3>Search Jobs (Worldwide + Remote)</h3>
+    <p class="muted">Enter keywords and Job Buddy will pull jobs automatically.</p>
 
+    <div class="row">
+      <div>
+        <label>Job Title</label>
+        <input id="jf_title" type="text" placeholder="e.g. engineer, data analyst, admin"/>
+      </div>
+      <div>
+        <label>Location</label>
+        <input id="jf_location" type="text" placeholder="remote, worldwide, or a city"/>
+      </div>
+    </div>
+
+    <button class="btn" id="jf_searchBtn" style="margin-top:10px;">Search Jobs</button>
+  </div>
+
+  <div class="card">
+    <h3>Results</h3>
+    <div id="jf_results" style="display:grid; gap:16px;"></div>
+  </div>
+</section>
+    
     <!-- Settings -->
     <section id="settings" class="grid" style="display:none;">
       <div class="card">
@@ -800,6 +825,106 @@
       const el = document.getElementById(id);
       el.addEventListener('input', () => { saveResume(); });
     });
+    /***************************
+ * JOB FINDER SYSTEM
+ ***************************/
+const jfTitle = $('#jf_title');
+const jfLoc = $('#jf_location');
+const jfBtn = $('#jf_searchBtn');
+const jfResults = $('#jf_results');
+
+// Helper: create card HTML
+function jobCard(job) {
+  return `
+    <div style="
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:16px;
+      padding:16px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.25);
+    ">
+      <h3 style="margin:0 0 6px;">${escapeHTML(job.title)}</h3>
+      <div class="muted" style="margin-bottom:8px;">
+        ${escapeHTML(job.company || 'Unknown')} • 
+        ${escapeHTML(job.location || 'Remote')}
+      </div>
+
+      <p style="font-size:14px; opacity:.9;">
+        ${escapeHTML(job.desc || '').slice(0,200)}...
+      </p>
+
+      <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+        ${job.url}Apply</a>
+        <button class="btn" onclick="saveJobToTracker('${escapeAttr(job.company)}','${escapeAttr(job.title)}','${escapeAttr(job.url)}')">
+          Save to Tracker
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// Save to tracker using existing system
+function saveJobToTracker(company, title, link) {
+  tracker.push({
+    company: company,
+    role: title,
+    link: link,
+    status: "Saved",
+    date: "",
+    notes: ""
+  });
+  saveTracker();
+  renderTable();
+  toast("Saved to Tracker!");
+}
+
+// Fetch from RemoteOK (Worldwide + Remote)
+async function fetchRemoteOK(query) {
+  try {
+    const res = await fetch("https://remoteok.com/api");
+    const data = await res.json();
+    return data
+      .filter(j => j.position && j.company)
+      .filter(j => j.position.toLowerCase().includes(query.toLowerCase()))
+      .map(j => ({
+        title: j.position,
+        company: j.company,
+        location: j.location || "Remote",
+        desc: j.description || "",
+        url: j.url
+      }));
+  } catch {
+    return [];
+  }
+}
+
+// Search Handler
+jfBtn.addEventListener('click', async () => {
+  const title = jfTitle.value.trim() || "job";
+  const loc = jfLoc.value.trim().toLowerCase();
+
+  jfResults.innerHTML = `<p class="muted">Searching jobs...</p>`;
+
+  // Fetch from RemoteOK
+  const remoteJobs = await fetchRemoteOK(title);
+
+  let finalJobs = remoteJobs;
+
+  // Optional location filtering
+  if (loc && loc !== "remote" && loc !== "worldwide") {
+    finalJobs = finalJobs.filter(j =>
+      j.location.toLowerCase().includes(loc)
+    );
+  }
+
+  // Display
+  if (!finalJobs.length) {
+    jfResults.innerHTML = `<p class="muted">No jobs found for your search.</p>`;
+    return;
+  }
+
+  jfResults.innerHTML = finalJobs.map(jobCard).join('');
+});
   </script>
 </body>
 </html>
